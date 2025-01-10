@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document, model } from "mongoose";
+import dotenv from "dotenv";
+dotenv.config()
 
-// MongoDB connection URI
-const mongoURI = "mongodb+srv://deepaknegi108r:JHnixgAFz445IawB@cluster0.dbdt7.mongodb.net/userjjkk";
 
+const Mongo_Url=process.env.mongo_URI
 // Connect to MongoDB
 mongoose
-  .connect(mongoURI)
+  .connect(Mongo_Url)
   .then(() => {
     console.log("Connected to MongoDB");
   })
@@ -15,17 +16,13 @@ mongoose
   });
 
 // Define the User schema and interface
-interface IUser extends Document {
-  username: string;
-  password: string;
-  email: string;
-}
 
-const UserSchema = new Schema<IUser>({
+
+const UserSchema: Schema = new Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
   email: { type: String, unique: true, required: true },
 });
 
 // Create the User model
-export const UserModel = model<IUser>("User", UserSchema);
+export const UserModel = model("User", UserSchema);
