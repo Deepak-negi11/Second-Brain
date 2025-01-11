@@ -1,10 +1,11 @@
 import express, { Request, Response,NextFunction} from "express";
-import { UserModel } from "./Db";  
+import { UserModel } from "../model/userdb";  
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
-import { hashPassword,comparePasswords } from "./auth";
+import { hashPassword,comparePasswords } from "../middleware/auth";
 import dotenv from "dotenv"
+import { isValidObjectId } from "mongoose";
 dotenv.config()
 
 
@@ -99,9 +100,9 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
              res.status(401).json({
                  message:"Incorrect Password",
          
-              })
+              }) 
            }
-          const token = jwt.sign({ userId:user._id},process.env.JWT_SECRET || 'secret', { expiresIn: '1h' })
+          req.session.id = user._id as string
       }catch(e:any){
         res.status(500).json({
           message: "Server Crash",
