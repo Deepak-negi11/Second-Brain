@@ -1,17 +1,11 @@
 import express, { Request, Response,NextFunction} from "express";
-import { UserModel } from "../model/userdb";  
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { User } from "../model/userdb";  
 import { z } from "zod";
 import { hashPassword,comparePasswords } from "../middleware/auth";
 import dotenv from "dotenv"
-import { isValidObjectId } from "mongoose";
+
 dotenv.config()
-
-
-
 const app = express();
-
 app.use(express.json()); /// Middleware to parse JSON
 
 // Define signup schema using zod
@@ -48,7 +42,7 @@ export const signupcontroller = async(req:Request,res:Response,next:NextFunction
         })
        }
         const {Username ,password,email} = req.body;
-        const existingUser = await UserModel.findOne({
+        const existingUser = await User.findOne({
              $or : [{Username},{email}]
         })
         if(existingUser){
@@ -57,7 +51,7 @@ export const signupcontroller = async(req:Request,res:Response,next:NextFunction
         })
         }
         const hashedPassword = await hashPassword(password);
-        await UserModel.create({
+        await User.create({
         Username,
         password :hashedPassword,
         email
@@ -86,7 +80,7 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
           })
          }
           const {password,email}:SigninData = req.body;
-          const user = await UserModel.findOne({
+          const user = await User.findOne({
                $or : [{email}]
           })
           if(!user){
@@ -102,6 +96,7 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
          
               }) 
            }
+         
           req.session.id = user._id as string
       }catch(e:any){
         res.status(500).json({
@@ -111,4 +106,4 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
         })
       }
   }
-  
+ 
