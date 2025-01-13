@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
 // Hash a password
@@ -13,20 +12,9 @@ export const comparePasswords = async (password: string, hashedPassword: string)
 };
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
-      return res.status(401).json({ message: 'cg;Access denied, no token provided' });
- 
-       }  
- }
-;
-
-export const isAuthentication = (req:Request , res:Response,next:NextFunction)=>{
-  if(!req.session.id){
-    return res.status(401).json({
-      message:"Authentication failed",
-      err:Error
-    })
+  if(!req.session.loggedIn || !req.session.id){
+     return res.status(401).json({
+      message:"User not Authenticated"
+     })
   }
 }

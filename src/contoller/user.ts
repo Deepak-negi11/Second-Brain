@@ -2,9 +2,8 @@ import express, { Request, Response,NextFunction} from "express";
 import { User } from "../model/userdb";  
 import { z } from "zod";
 import { hashPassword,comparePasswords } from "../middleware/auth";
-import dotenv from "dotenv"
 
-dotenv.config()
+
 const app = express();
 app.use(express.json()); /// Middleware to parse JSON
 
@@ -43,7 +42,8 @@ export const signupcontroller = async(req:Request,res:Response,next:NextFunction
        }
         const {Username ,password,email} = req.body;
         const existingUser = await User.findOne({
-             $or : [{Username},{email}]
+          email,
+          password
         })
         if(existingUser){
         res.status(400).json({
@@ -66,6 +66,7 @@ export const signupcontroller = async(req:Request,res:Response,next:NextFunction
         error: e.message
 
       })
+      next()
     }
 } 
 
@@ -98,12 +99,13 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
            }
          
           req.session.id = user._id as string
+          req.session.loggedIn = true;
       }catch(e:any){
         res.status(500).json({
-          message: "Server Crash",
+          message: "Sersver Crash",
           err: e.message
   
-        })
+         })
       }
   }
  

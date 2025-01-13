@@ -1,1 +1,1 @@
-{"root":["./src/db.ts","./src/index.ts"],"errors":true,"version":"5.6.3"}
+{"root":["./src/connect.ts","./src/global.d.ts","./src/index.ts","./src/contoller/content.ts","./src/contoller/user.ts","./src/middleware/auth.ts","./src/model/content.ts","./src/model/link.ts","./src/model/tags.ts","./src/model/userdb.ts","./src/routes/router.ts"],"version":"5.6.3"}

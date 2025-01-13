@@ -1,9 +1,9 @@
-import  mongoose  from "mongoose";
+import  mongoose, { ObjectId , Types }  from "mongoose";
 import { Content } from "../model/Content";
 import express, {Request,Response,NextFunction} from 'express'
 
 
-interface ContentData {
+interface ConetntSchema{
     type : {
         enum:'documents'|'tweet'|'youtube'|'link',
         required:true
@@ -11,40 +11,37 @@ interface ContentData {
     },
     link:'url',
     title:String,
+    id:Types.ObjectId
 }
 
-
-
-export const createContent = async(req:Request,res:Response,next:NextFunction)=>{
+export const createContent = async(req:Request,res:Response,next:NextFunction):Promise<void> =>{
     try{
-        const {link ,type,title}: ContentData = req.body
-        const {id} = req.body;
-
-       const Data = new Content({
-        link,type,title
+        const {link ,type,title,id}: ConetntSchema= req.body
+        const Data = new Content({
+        link,type,title ,id
         
       })
      await Data.save()
        res.status(201).json({
         message:"Data created successfully"
        })
-    }catch(error){
-        message:"server failed"
-        console.log(error)
+    }catch(error) {
+        console.log( "Content can't be created",error)
+        next()
     }
 }
 
-export const DeleteContent = async (req:Request,res:Response,next:NextFunction)=>{
+export const deleteContent = async(req:Request,res:Response,next:NextFunction)=>{
     try{
-       const {id} = req.params;
+       const id = req.params.id;
        if(!mongoose.Types.ObjectId.isValid(id)){
         return res.status(400).json({
             message:'Invalid Id'
         })
 
        }
-        const deletedata  = await Content.findOneAndDelete({ _id: id });
-       if(!deletedata){
+        const deleteContent = await Content.findOneAndDelete({ _id: id });
+       if(!deleteContent){
         return res.status(400).json({
             message :"cant delete data"
         })
