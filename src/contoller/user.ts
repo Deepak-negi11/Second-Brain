@@ -1,7 +1,9 @@
 import express, { Request, Response,NextFunction} from "express";
+import mongoose ,{ Types } from "mongoose";
 import { User } from "../model/userdb";  
 import { z } from "zod";
 import { hashPassword,comparePasswords } from "../middleware/auth";
+import { Error } from "mongoose";
 
 
 const app = express();
@@ -9,7 +11,7 @@ app.use(express.json()); /// Middleware to parse JSON
 
 // Define signup schema using zod
 const signupSchema = z.object({
-  Username: z.string().min(6).max(49),
+  username: z.string().min(6).max(49),
   password: z.string().min(12).max(29).regex(/[A-Z]/).regex(/[0-9]/),
   email: z.string().email("invalid email"),
   confirmPassword : z.string(),
@@ -40,19 +42,19 @@ export const signupcontroller = async(req:Request,res:Response,next:NextFunction
             error:SignupParse.error.errors
         })
        }
-        const {Username ,password,email} = req.body;
-        const existingUser = await User.findOne({
+        const {username ,password,email}:SignupData = req.body;
+        const user = await User.findOne({
           email,
           password
         })
-        if(existingUser){
+        if(user){
         res.status(400).json({
             message:"User already Exict"
         })
         }
         const hashedPassword = await hashPassword(password);
         await User.create({
-        Username,
+        username,
         password :hashedPassword,
         email
         })
@@ -80,7 +82,7 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
               error: SigninParse.error.errors
           })
          }
-          const {password,email}:SigninData = req.body;
+          const { password , email ,confirmPassword}:SigninData = req.body
           const user = await User.findOne({
                $or : [{email}]
           })
@@ -97,9 +99,21 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
          
               }) 
            }
-         
-          req.session.id = user._id as string
+           
+
+          req.session.userid = user._id
           req.session.loggedIn = true;
+
+          const userResponse = {
+            id: user._id,
+            email: user.email,
+          };
+          
+          res.status(201).json({
+            message:"User signed in",
+            user:userResponse
+          })
+     console.log(userResponse)
       }catch(e:any){
         res.status(500).json({
           message: "Sersver Crash",
@@ -109,3 +123,50 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
       }
   }
  
+  export const updateUser  = async (req:Request, res:Response, next:NextFunction)=>{
+    try{
+      //so it means that id will contain id and ..updatedata will contain all other data that is been updated
+      const {id , ...updateData} = req.body;\
+          if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: 'Invalid user ID' });
+          }
+      const UpdateUser = await User.findByIdAndUpdate(id ,updateData);
+      if(!UpdateUser){
+           res.status(400).json({
+            message:"User not found " })
+           res.status(200).json({
+            message:"User Updated Successfully" })
+
+      }
+
+    }catch(error:Error){
+      console.error(error)
+      res.status(500).json({
+        message:"Server Failed",
+        error : error.message || "Internal Server Error"
+      })
+    }
+    }
+  
+export const DeleteUser = async (req: Request, res: Response, next: NextFunction)=>{
+  try{
+      const {id} = req.params;
+      if(!mongoose.Types.ObjectId.isValid(id)){
+     res.status(400).json({
+         message:"Invalid id "})
+     }
+      const DeleteUser = await User.findByIdAndDelete(id);
+     if(DeleteUser){
+         res.status(400).json({
+          message:"User can't Be Deleted"  })
+     }
+     res.status(200).json({
+        message:"User Deleted Successfully " }) 
+  }catch(error:Error){
+    console.error("Server Error",error)
+    res.status(500).json({
+      Success:false,
+      error:error.message
+    })
+  }
+}

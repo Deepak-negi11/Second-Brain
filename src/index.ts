@@ -2,7 +2,7 @@ import dotenv from "dotenv"
 import  cors from "cors"
 import session from "express-session"
 import connectDB from "./connect";
-import indexRouter from "./routes/router"
+import router from "./routes/router"
 import express , { Request , Response , NextFunction} from "express"
 
 dotenv.config()
@@ -27,7 +27,7 @@ app.use(session({
 }))
 
 // so this line means every router will start from /api from now 
-app.use('/api', indexRouter);
+app.use('/api', router);
 
 // why i used this what if the uper middle fail for that reason the middleware is return
 app.use((err:Error, req:Request, res:Response, next:NextFunction) => {

@@ -13,7 +13,7 @@ router.post("/user/signin", async (req , res, next)=>{
   await signincontroller(req , res, next)
 });
 
-router.post("/content" , async (req , res ,next)=>{
+router.post("/content/add" , async (req , res ,next)=>{
   await createContent(req , res , next)
 } );
 router.delete("/deletecontent/:id",async (req , res ,next)=>{
