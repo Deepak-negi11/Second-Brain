@@ -29,7 +29,7 @@ export const ContentSchema:Schema = new Schema({
     },],
     userId:{
         type: mongoose.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
         required: true,
     },
     

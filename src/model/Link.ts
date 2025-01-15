@@ -15,4 +15,4 @@ LinkSchema.pre('save',async function(next){
     next()
 })
 
-export const  Link = model("link",LinkSchema)
+export const Link= model("link",LinkSchema)
