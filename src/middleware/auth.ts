@@ -16,5 +16,13 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
      return res.status(401).json({
       message:"User not Authenticated"
      })
-  }
-}
+  }}
+
+// export const isAdmin = (req: Request, res: Response, next: NextFunction)=>{
+//   if(req.session.role !== 'admin'){
+//     res.status(400).json({
+//       message:"Onl6y Valid for Admin"
+//     })
+
+//   }
+// }

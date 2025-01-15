@@ -1,9 +1,9 @@
 import express, { Request, Response,NextFunction} from "express";
-import mongoose ,{ Types } from "mongoose";
+import mongoose , { Types }  from "mongoose";
 import { User } from "../model/userdb";  
 import { z } from "zod";
 import { hashPassword,comparePasswords } from "../middleware/auth";
-import { Error } from "mongoose";
+
 
 
 const app = express();
@@ -56,7 +56,8 @@ export const signupcontroller = async(req:Request,res:Response,next:NextFunction
         await User.create({
         username,
         password :hashedPassword,
-        email
+        email,
+        role:'user'
         })
         res.status(201).json({
         message:"User Created Successfully",
@@ -126,20 +127,20 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
   export const updateUser  = async (req:Request, res:Response, next:NextFunction)=>{
     try{
       //so it means that id will contain id and ..updatedata will contain all other data that is been updated
-      const {id , ...updateData} = req.body;\
+      const { id , ...updateData } = req.body
+        
           if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: 'Invalid user ID' });
           }
       const UpdateUser = await User.findByIdAndUpdate(id ,updateData);
       if(!UpdateUser){
            res.status(400).json({
-            message:"User not found " })
-           res.status(200).json({
-            message:"User Updated Successfully" })
-
+            message:"User not found " });
       }
+      res.status(200).json({
+        message:"User Updated Successfully",UpdateUser })
 
-    }catch(error:Error){
+    }catch(error: any){
       console.error(error)
       res.status(500).json({
         message:"Server Failed",
@@ -148,7 +149,7 @@ export const signincontroller = async (req:Request,res:Response,next:NextFunctio
     }
     }
   
-export const DeleteUser = async (req: Request, res: Response, next: NextFunction)=>{
+export const deleteUser= async(req: Request, res: Response, next: NextFunction)=>{
   try{
       const {id} = req.params;
       if(!mongoose.Types.ObjectId.isValid(id)){
@@ -162,7 +163,7 @@ export const DeleteUser = async (req: Request, res: Response, next: NextFunction
      }
      res.status(200).json({
         message:"User Deleted Successfully " }) 
-  }catch(error:Error){
+  }catch(error:any){
     console.error("Server Error",error)
     res.status(500).json({
       Success:false,
